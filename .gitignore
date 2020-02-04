@@ -1,3 +1,6 @@
 *.token
 *.asv
 *.pyc
+*.json
+images/*
+!images/samples/*
