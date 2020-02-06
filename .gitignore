@@ -6,3 +6,4 @@ images/*
 !images/samples/*
 output/*
 .DS*
+temp*
