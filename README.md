@@ -1,5 +1,7 @@
 # api-design-sullyj42
-This file repository contains a series of structures to help analyze a users twitter feed. The end-goal was to create a word-cloud summarizing a users Twitter history. Run on XUbuntu with an Anaconda Python 3.8.1 environment (requirements generated using )
+This repository contains a series of structures to help analyze a users twitter feed. The end-goal was to create a word-cloud summarizing a users Twitter history. Run on XUbuntu with an Anaconda Python 3.8.1 environment (requirements generated using pip freeze)
+
+Example outputs can be viewed under "outputs/examples"
 
 See pytest files for example usage. Basic usage can be tried with the command: 
 > ./runcommand.sh
