@@ -243,8 +243,8 @@ def getKeyFromTxt(fName):
         fid.close()
         return(key)
     else:
-        print('\nWas the key entered as a string?\n', file=sys.stderr)
-        raise Exception('File not found')
+        print('\nKey missing. Expected if running remote\n', file=sys.stderr)
+        raise FileNotFoundError
 
 
 def image_downloader(url, directory):
