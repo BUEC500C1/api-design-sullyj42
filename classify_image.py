@@ -31,7 +31,12 @@ class python_image():
         if isfile(file_name):
             self.process_file(file_name)
         else:
-            raise FileNotFoundError
+            if file_name == '':
+                pass
+                # Just create a class instance and wait
+            else:
+                # We expected to get a file
+                raise FileNotFoundError
 
     def process_file(self, file_name):
         '''
