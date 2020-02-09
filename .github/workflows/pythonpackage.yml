@@ -11,7 +11,7 @@ jobs:
       - name: Decrypt secret
         run: ./decrypt_secret.sh
         env:
-          GOOGLE_PW: ${{ secrets.GOOGLE_PW}}
+          GOOGLE_PW: ${{secrets.GOOGLE_PW}}
   build:
     runs-on: ubuntu-latest
     strategy:
