@@ -9,7 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Decrypt secret
-        run: ./decrypt_secret.sh
+        run: |
+          chmod +x ./decrypt_secret.sh
+          ./decrypt_secret.sh
         env:
           GOOGLE_PW: ${{secrets.GOOGLE_PW}}
   build:
