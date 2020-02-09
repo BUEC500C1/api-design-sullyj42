@@ -47,7 +47,7 @@ class tweet_import():
                 './tokens/twitter_access_secret.token')
         except FileNotFoundError:
             # Use environmental variables (Github Actions)
-            envlist = os.environ
+            envlist = environ
             print(*envlist, sep='\n')
             consumer_key = environ['INPUT_CONSUMER_KEY']
             consumer_secret = environ['INPUT_CONSUMER_SECRET']
