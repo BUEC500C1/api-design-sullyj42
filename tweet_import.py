@@ -74,7 +74,6 @@ class tweet_import():
         print(f'Connected as {self.client.me().screen_name}, you can tweet !')
         self.client_id = self.client.me().id
 
-
     def makeoutputfolder(self):
         '''
         This module creates a unique file structure for analysis

@@ -13,7 +13,7 @@ def test_classify_image():
     '''
     This function runs two simple tests over a Google Cloud Image wrapper
     '''
-    image_file = fullfile('vision_test' ,'samples', 'mountains.jpg')
+    image_file = fullfile('vision_test', 'samples', 'mountains.jpg')
     if not os.path.isfile(image_file):
         raise Exception('Test image file not found')
 
