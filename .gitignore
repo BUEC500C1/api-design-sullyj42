@@ -9,3 +9,4 @@ output/*
 temp*
 *.orig # Results from astyle
 *.ORIG # Results from astyle
+!output/examples/*
