@@ -50,8 +50,10 @@ class tweet_import():
             envlist = environ
             print(*envlist, sep='\n')
             consumer_key = environ['CONSUMER_KEY']
+            print(consumer_key)
             consumer_secret = environ['CONSUMER_SECRET']
             access_token = environ['ACCESS_TOKEN']
+            print(access_token)
             access_secret = environ['ACCESS_SECRET']
         try:
             auth = tweepy.OAuthHandler(consumer_key,
