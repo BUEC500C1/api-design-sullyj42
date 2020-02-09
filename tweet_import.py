@@ -4,48 +4,53 @@ This file contains  a class to import twitter data
 
 The tweet_import class takes a username and pulls the picture data
 
-If called from the command-line, the function will pull data 
+If called from the command-line, the function will pull data
 '''
 
 import tweepy
-from tweepy import OAuthHandler
-import json
 # import csv      # Format things nicely
 import re         # Clean up tweets (remove "RT", @(...), etc)
 
 from datetime import datetime
 import sys
-import subprocess
 
 # Create and manipulate files
-from   os.path import isfile, sep, isdir, join as fullfile
-from   os      import makedirs, remove
-from requests  import get as pywget
+from os.path import isfile, sep, isdir, join as fullfile
+from os import makedirs, environ
+from requests import get as pywget
 
 # Perform image classification
 from classify_image import python_image
 
 # Generate a word cloud
 from make_word_cloud import word_cloud_from_txt
-# Debug
-from time import sleep
+
 
 class tweet_import():
     '''
     This class provides a set of methods to analyze Twitter data
     '''
-    def __init__(self): 
-        ''' 
+    def __init__(self):
+        '''
         This attempts to initialize a twitter API interface
 
         Attempts to read from the keys (stored locally),
         Throws error if connection unsuccessful
         '''
-        
-        consumer_key        = getKeyFromTxt('./tokens/twitter_consumer.token')
-        consumer_secret     = getKeyFromTxt('./tokens/twitter_consumer_secret.token')
-        access_token        = getKeyFromTxt('./tokens/twitter_access.token')
-        access_secret = getKeyFromTxt('./tokens/twitter_access_secret.token')
+        try:
+            # Try using local files
+            consumer_key = getKeyFromTxt('./tokens/twitter_consumer.token')
+            consumer_secret = getKeyFromTxt(
+                './tokens/twitter_consumer_secret.token')
+            access_token = getKeyFromTxt('./tokens/twitter_access.token')
+            access_secret = getKeyFromTxt(
+                './tokens/twitter_access_secret.token')
+        except FileNotFoundError:
+            # Use environmental variables (Github Actions)
+            consumer_key = environ['CONSUMER_KEY']
+            consumer_secret = environ['CONSUMER_SECRET']
+            access_token = environ['ACCESS_TOKEN']
+            access_secret = environ['ACCESS_SECRET']
         try:
             auth = tweepy.OAuthHandler(consumer_key,
                                        consumer_secret)
@@ -55,10 +60,11 @@ class tweet_import():
             if not self.client.verify_credentials():
                 raise tweepy.TweepError
         except tweepy.TweepError as e:
-            print('ERROR : connection failed. Check your OAuth keys.')
-        else:
-            print(f'Connected as {self.client.me().screen_name}, you can start to tweet !')
-            self.client_id = self.client.me().id
+            # Print a more helpful debug message and rethrow
+            print('\nERROR : connection failed. Check your Twitter keys.\n')
+            raise e
+        print(f'Connected as {self.client.me().screen_name}, you can tweet !')
+        self.client_id = self.client.me().id
 
     def makeoutputfolder(self):
         '''
@@ -70,7 +76,7 @@ class tweet_import():
         -- X is a simple iterator
         '''
         if not isdir('output'):
-            makedirs('output'); 
+            makedirs('output')
         datestr = datetime.now().strftime('%Y_%m_%d')
         # timestr = datetime.now().strftime('%H_%M%S')
         curFolder = fullfile('output', datestr, '')
@@ -80,30 +86,28 @@ class tweet_import():
         curFolder = fullfile(curFolder, self.user)
         if not isdir(curFolder):
             makedirs(curFolder)
-        else: 
+        else:
             # Make a unique directory
             i = 1
             temp = curFolder
-            while isdir(temp): # Loop until the directory no longer exists
+            while isdir(temp):  # Loop until the directory no longer exists
                 temp = curFolder + '_' + str(i)
-                i += 1; 
-            curFolder  = temp; 
+                i += 1
+            curFolder = temp
             makedirs(curFolder)
 
         if not isdir(fullfile(curFolder, 'images')):
             # Make a unique directory to save images as well
             makedirs(fullfile(curFolder, 'images'))
 
-        self.curFolder = curFolder;
-
-
+        self.curFolder = curFolder
 
     def analyzeUsername(self, username):
         '''
         Given a valid username, makes call to tweepy to donwload recent tweets
 
         Grabs full texts of tweets and retweets
-        -- Full Retweets are not simple to analyze, this may deprecate over time
+        -- Full Retweets are not simple to analyze, this may deprecate
 
         Stores two lists into the structure:
             1. Tweetdata
@@ -120,24 +124,23 @@ class tweet_import():
             -- Useful for debugging
 
             3. The images from the list above, saved to "images" subdirectory
-
-        Currently looking at all tweets (replies, retweets, etc). This could be revisited
         '''
         self.user = username
-        self.makeoutputfolder(); 
+        self.makeoutputfolder()
         # Obtain a 'ResultSet' of new tweets
-        new_tweets = self.client.user_timeline(screen_name = self.user, \
-                                               count=200, \
+        new_tweets = self.client.user_timeline(screen_name=self.user,
+                                               count=200,
                                                tweet_mode="extended")
 
         # Parse text
         tweetsText = []
         for tweet in new_tweets:
-            # This could easily deprecate, or break if tweet happens to start with 'RT '...
+            # This could easily deprecate, or break if starts with 'RT '...
             if tweet.full_text[0:3] == 'RT ':
-                try: 
+                try:
                     # Try to get the full text of the retweet
-                    tweetsText.append(tweet._json["retweeted_status"]["full_text"])
+                    tweetsText.append(tweet._json["retweeted_status"]
+                                                 ["full_text"])
                 except KeyError:
                     # If it can't be found, just add the "full text"
                     tweetsText.append(tweet.full_text)
@@ -146,9 +149,9 @@ class tweet_import():
                 tweetsText.append(tweet.full_text)
 
         # Parse URL's
-        urlData = [];
+        urlData = []
         for tweet in new_tweets:
-            try: 
+            try:
                 urlData.append(tweet.entities['media'][0]['media_url'])
             except (NameError, KeyError):
                 pass
@@ -156,40 +159,43 @@ class tweet_import():
         self.writeTweetData(tweetsText, urlData)
 
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
-        
+
     def writeTweetData(self, textData, urlData):
-        ''' 
+        '''
         This method saves the tweet data, and image url's to an output folder
 
         Also downloads the images for convenience
 
         Writes the dirty and clean tweets to files for comparisons
         '''
-        dirty_tweet_file = self.curFolder + sep + 'DirtyTweetData_' + self.user + '.txt'
+        dirty_tweet_file = self.curFolder + sep + 'DirtyTweetData_' +\
+            self.user + '.txt'
         with open(dirty_tweet_file, 'w') as dirty_fid:
-            print(*textData, sep = '\n\n', file = dirty_fid)
+            print(*textData, sep='\n\n', file=dirty_fid)
 
-        clean_tweet_file = self.curFolder + sep + 'CleanTweetData_' + self.user + '.txt'
+        clean_tweet_file = self.curFolder + sep + 'CleanTweetData_' +\
+            self.user + '.txt'
         clean_tweets = remove_words(textData)
         with open(clean_tweet_file, 'w') as clean_fid:
-            print(*clean_tweets, sep = '\n\n', file = clean_fid)
+            print(*clean_tweets, sep='\n\n', file=clean_fid)
         self.tweet_text = clean_tweets
 
-        urlFile  = self.curFolder + sep + 'imageData_' + self.user + '.txt'
+        urlFile = self.curFolder + sep + 'imageData_' + self.user + '.txt'
+        outfolder = fullfile(self.curFolder, 'images', '')
         with open(urlFile, 'w') as f_url:
             image_list = []
-            for s in urlData:
-                fname = image_downloader(s, fullfile(self.curFolder, 'images', ''))
-                f_url.write(s + '\n')
+            for url in urlData:
+                fname = image_downloader(url, outfolder)
+                f_url.write(url + '\n')
                 if fname == 0:
                     # Did not download image, currently not doing anything
                     pass
-                else: 
+                else:
                     if isfile(fname):
                         image_list.append(fname)
-                    else: 
-                        print(f'Imagedownloader returned a filename ({fname})\n' + \
-                               'but did not successfully download', file = sys.stderr)
+                    else:
+                        print(f'Imagedownloader returned ({fname})\n' +
+                              'but did not download', file=sys.stderr)
         self.images = image_list
 
     def classify_images(self):
@@ -205,9 +211,9 @@ class tweet_import():
             print(f'\nClassifying: {image_file}')
             g_vision.process_file(image_file)
             print('Classified, obtained labels: ')
-            print(*g_vision.labels, sep = ' ')
-            self.image_labels += g_vision.labels # Append list into our list
-                                                 # Metadata from labels
+            print(*g_vision.labels, sep=' ')
+            self.image_labels += g_vision.labels    # Append list into our list
+            # Metadata from labels
 
     def write_summaryfile(self):
         '''
@@ -215,15 +221,16 @@ class tweet_import():
         '''
         outfile = fullfile(self.curFolder, 'twitter_output.txt')
         print(f'\nWriting output file: {outfile}\n')
-        with open(outfile, 'w') as summary_file: 
-            print(*self.tweet_text, sep = '\n\n', file = summary_file)
-            print('\n\n', file = summary_file)
+        with open(outfile, 'w') as summary_file:
+            print(*self.tweet_text, sep='\n\n', file=summary_file)
+            print('\n\n', file=summary_file)
             for i in range(3):
                 # Make the image files more significant, arbitrarily
-                print(*self.image_labels, sep = '\n', file = summary_file)
+                print(*self.image_labels, sep='\n', file=summary_file)
                 print('')
         print('Output file complete.')
         return outfile
+
 
 def getKeyFromTxt(fName):
     '''
@@ -231,12 +238,12 @@ def getKeyFromTxt(fName):
     '''
     if isfile(fName):
         fid = open(fName, 'r')
-        key = fid.readline(); 
-        fid.close(); 
+        key = fid.readline()
+        fid.close()
         return(key)
     else:
-        print('\nWas the key entered as a string?\n', file = sys.stderr)
-        raise Exception('File not found');
+        print('\nWas the key entered as a string?\n', file=sys.stderr)
+        raise Exception('File not found')
 
 
 def image_downloader(url, directory):
@@ -251,47 +258,49 @@ def image_downloader(url, directory):
     if not isdir(directory):
         raise Exception(f'Directory not accessible: {directory}')
     fname = re.findall("(?<=/)\\w+\\.\\w+", url)[-1]
-    fext  = re.findall("(?<=\\.)\\w+", fname)[-1]
+    fext = re.findall("(?<=\\.)\\w+", fname)[-1]
     if fext.lower() not in ['jpg', 'png', 'tif']:
-        print(f'Invalid image format detected: {url}\n, skipping download', file=sys.stderr)
+        print(f'Invalid image detected: {url}\n, skipping', file=sys.stderr)
         return 0
 
-    try: 
+    try:
         img_data = pywget(url).content
-    except:
+    except pywget.RequestException:
         print(f'Could not download from: {url}', file=sys.stderr)
         return 0
     fname = re.findall("(?<=/)\\w+\\.\\w+", url)[-1]
 
-    filename = directory + fname;
+    filename = directory + fname
     with open(filename, 'wb') as handler:
         handler.write(img_data)
 
     return filename
 
+
 def remove_words(dirty_tweets):
     '''
-    This is a computationally complex way to remove a set of words from the string
+    This is a computationally complex way to remove a set of words from string
     '''
     clean_tweets = []
 
     with open('commonwords.txt', 'r') as wordlist:
         words_to_remove = wordlist.readlines()
-    words_to_remove = [word.lower().strip() for word in words_to_remove] 
+    words_to_remove = [word.lower().strip() for word in words_to_remove]
     for text in dirty_tweets:
         temp_string = re.sub(r"http\S+", "", text.lower().strip())
-        temp_string = re.sub('@\\w*', "",    temp_string)  # Remove mentions, usernames
+        temp_string = re.sub('@\\w*', "",    temp_string)  # Remove mentions
         # print("removing common words")
         # print(temp_string)
         for word in words_to_remove:
             # Remove anything matching the list with surronding spaces
-            temp_string = temp_string.lower().replace(" " + word + " ", " ") 
+            temp_string = temp_string.lower().replace(" " + word + " ", " ")
         # print('Removed common words')
         # print(temp_string)
         # sleep(5)
         clean_tweets.append(temp_string)
 
     return clean_tweets
+
 
 if __name__ == '__main__':
     '''

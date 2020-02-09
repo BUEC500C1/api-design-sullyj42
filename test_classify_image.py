@@ -7,6 +7,7 @@ import os
 # import pytest
 from classify_image import python_image
 
+
 def test_classify_image():
     '''
     This function runs two simple tests over a Google Cloud Image wrapper
@@ -24,12 +25,13 @@ def test_classify_image():
     # Make sure it generates a test file
     assert os.path.isfile(report_file), 'json report file not generated'
 
-
     # Make sure it contains the top-three labels
     # This could change over time, but is just a spot-check for now
-    print(f'Report file: {set(truth_labels).issubset(set(image_classifier.labels))}')
-    assert set(truth_labels).issubset(set(image_classifier.labels)), \
-       'The current results do not contain the historical, top-three results\n' + \
-       'Check the json log file for the current labels and update test-cases if valid'
+    validLabels = set(truth_labels).issubset(set(image_classifier.labels))
+    print(f'Report file: {validLabels}')
+    errmsg = 'The current results do not contain the old, top results\n' + \
+        'Check log file for the current labels and update test-cases if valid'
+    assert validLabels, errmsg
+
 
 test_classify_image()
