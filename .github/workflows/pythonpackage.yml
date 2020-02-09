@@ -29,7 +29,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       env:
+        CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+        CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
         ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
         pip install pytest
         pytest
