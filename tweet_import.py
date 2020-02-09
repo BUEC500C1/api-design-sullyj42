@@ -47,10 +47,12 @@ class tweet_import():
                 './tokens/twitter_access_secret.token')
         except FileNotFoundError:
             # Use environmental variables (Github Actions)
-            consumer_key = environ['CONSUMER_KEY']
-            consumer_secret = environ['CONSUMER_SECRET']
-            access_token = environ['ACCESS_TOKEN']
-            access_secret = environ['ACCESS_SECRET']
+            envlist = os.environ
+            print(*envlist, sep='\n')
+            consumer_key = environ['INPUT_CONSUMER_KEY']
+            consumer_secret = environ['INPUT_CONSUMER_SECRET']
+            access_token = environ['INPUT_ACCESS_TOKEN']
+            access_secret = environ['INPUT_ACCESS_SECRET']
         try:
             auth = tweepy.OAuthHandler(consumer_key,
                                        consumer_secret)
