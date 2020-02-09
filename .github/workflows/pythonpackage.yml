@@ -9,7 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Decrypt secret
-        run: ./decrypt_secret.sh
+        run: |
+          chmod +x ./decrypt_secret.sh
+          ./decrypt_secret.sh
+          cat secrets/googleKeys_jpsullivan_ec500.json
         env:
           GOOGLE_PW: ${{secrets.GOOGLE_PW}}
   build:
@@ -41,8 +44,11 @@ jobs:
         CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
         ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        GOOGLE_PW: ${{secrets.GOOGLE_PW}}
         GOOGLE_APPLICATION_CREDENTIALS: ./secrets/googleKeys_jpsullivan_ec500.json
 
       run: |
+        chmod +x ./decrypt_secret.sh
+        ./decrypt_secret.sh
         pip install pytest
         pytest
