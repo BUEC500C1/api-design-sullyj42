@@ -35,3 +35,6 @@ Downloads images and makes calls to python_image to create a text description of
 
 ## TO-DO
 Improve the retrieval of past tweets; currently only analyzing the 200 (ish) most recent tweets
+
+## Bugs
+Currently the valid-image checker is flagging filenames that look invalid, but are in-fact valid images.
