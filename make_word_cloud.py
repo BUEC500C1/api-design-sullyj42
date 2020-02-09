@@ -43,4 +43,4 @@ if __name__ == '__main__':
 
     Run as a simple command with a valid ascii file name as the only argument
     '''
-    testCloud = word_cloud_from_txt('test/const.txt')
+    testCloud = word_cloud_from_txt('cloud_test/const.txt')
