@@ -11,3 +11,4 @@ temp*
 *.ORIG # Results from astyle
 !output/examples
 !output/examples/*
+secrets/*
