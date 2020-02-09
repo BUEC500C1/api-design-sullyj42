@@ -33,6 +33,7 @@ class python_image():
         else:
             raise FileNotFoundError
 
+
     def process_file(self, file_name):
         '''
         This method passes the file_name to google vision
