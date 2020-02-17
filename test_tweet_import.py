@@ -3,9 +3,9 @@ Run test case on tweet_image
 '''
 # from unittest import TestCase
 # import pytest
-from .tweet_import import tweet_import
+from tweet_import import tweet_import
 from os.path import isfile, join
-from .make_word_cloud import word_cloud_from_txt
+from make_word_cloud import word_cloud_from_txt
 
 
 def test_tweet_import_connection():
