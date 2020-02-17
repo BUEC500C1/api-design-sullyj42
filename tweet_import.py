@@ -20,10 +20,10 @@ from os import makedirs, environ
 from requests import get as pywget
 
 # Perform image classification
-from classify_image import python_image
+from .classify_image import python_image
 
 # Generate a word cloud
-from make_word_cloud import word_cloud_from_txt
+from .make_word_cloud import word_cloud_from_txt
 
 
 class tweet_import():
