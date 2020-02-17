@@ -65,9 +65,8 @@ class tweet_import():
             raise e
         print(f'Connected as {self.client.me().screen_name}, you can tweet !')
         self.client_id = self.client.me().id
-        self.max_id = None; # For aquiring past tweets
-        self.iteration = 0; # For saving iterative tweets in new pages
-
+        self.max_id = None  # For aquiring past tweets
+        self.iteration = 0  # For saving iterative tweets in new pages
 
     def makeoutputfolder(self):
         '''
@@ -97,7 +96,7 @@ class tweet_import():
                 temp = curFolder + '_' + str(i)
                 i += 1
             curFolder = temp
-            outFolder = curfolder + '_iter' + str(self.iteration)
+            outFolder = curFolder + '_iter' + str(self.iteration)
             makedirs(outFolder)
 
         if not isdir(fullfile(curFolder, 'images')):
