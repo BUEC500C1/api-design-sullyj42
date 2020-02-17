@@ -20,10 +20,10 @@ from os import makedirs, environ
 from requests import get as pywget
 
 # Perform image classification
-from classify_image import python_image
+from .classify_image import python_image
 
 # Generate a word cloud
-from make_word_cloud import word_cloud_from_txt
+from .make_word_cloud import word_cloud_from_txt
 
 
 class tweet_import():
@@ -65,6 +65,9 @@ class tweet_import():
             raise e
         print(f'Connected as {self.client.me().screen_name}, you can tweet !')
         self.client_id = self.client.me().id
+        self.max_id = None; # For aquiring past tweets
+        self.iteration = 0; # For saving iterative tweets in new pages
+
 
     def makeoutputfolder(self):
         '''
@@ -94,7 +97,8 @@ class tweet_import():
                 temp = curFolder + '_' + str(i)
                 i += 1
             curFolder = temp
-            makedirs(curFolder)
+            outFolder = curfolder + '_iter' + str(self.iteration)
+            makedirs(outFolder)
 
         if not isdir(fullfile(curFolder, 'images')):
             # Make a unique directory to save images as well
@@ -130,7 +134,8 @@ class tweet_import():
         # Obtain a 'ResultSet' of new tweets
         new_tweets = self.client.user_timeline(screen_name=self.user,
                                                count=200,
-                                               tweet_mode="extended")
+                                               tweet_mode="extended",
+                                               max_id=self.max_id)
 
         # Parse text
         tweetsText = []
@@ -155,7 +160,7 @@ class tweet_import():
                 urlData.append(tweet.entities['media'][0]['media_url'])
             except (NameError, KeyError):
                 pass
-
+        self.max_id = min([tweet.id for tweet in new_tweets])-1
         self.writeTweetData(tweetsText, urlData)
 
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
