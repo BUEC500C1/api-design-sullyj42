@@ -6,7 +6,7 @@ Run test case on classify_image
 from os import remove as rm
 from os.path import isfile
 # import pytest
-from make_word_cloud import word_cloud_from_txt
+from twittertools.make_word_cloud import word_cloud_from_txt
 
 
 def test_make_word_cloud():

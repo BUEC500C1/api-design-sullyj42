@@ -5,7 +5,7 @@ Run test case on classify_image
 # from unittest import TestCase
 import os
 # import pytest
-from classify_image import python_image
+from twittertools.classify_image import python_image
 from os.path import join as fullfile
 
 

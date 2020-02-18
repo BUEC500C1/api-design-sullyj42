@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "tweet_import.py", line 150, in <module>
-    tweetClass.analyzeUsername('brabbott42', range(0, 10))
-  File "tweet_import.py", line 74, in analyzeUsername
-    self.writeTweetData(tweets); 
-  File "tweet_import.py", line 137, in writeTweetData
-    text = s.full_text
-AttributeError: 'Status' object has no attribute 'full_text'

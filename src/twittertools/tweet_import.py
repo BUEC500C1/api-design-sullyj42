@@ -20,10 +20,10 @@ from os import makedirs, environ
 from requests import get as pywget
 
 # Perform image classification
-from .classify_image import python_image
+from twittertools.classify_image import python_image
 
 # Generate a word cloud
-from .make_word_cloud import word_cloud_from_txt
+from twittertools.make_word_cloud import word_cloud_from_txt
 
 
 class tweet_import():
@@ -77,15 +77,30 @@ class tweet_import():
         Folder structure: output/date/user_X/[files]
         -- X is a simple iterator
         '''
+        if self.iteration > 0:
+            self.curFolder = re.sub(
+                'iter\\d+', 
+                'iter' + str(self.iteration),
+                self.curFolder)
+            makedirs(self.curFolder);
+            if not isdir(fullfile(self.curFolder, 'images')):
+                # Make a unique directory to save images as well
+                makedirs(fullfile(self.curFolder, 'images'))
+            return
+
         if not isdir('output'):
             makedirs('output')
         datestr = datetime.now().strftime('%Y_%m_%d')
         # timestr = datetime.now().strftime('%H_%M%S')
         curFolder = fullfile('output', datestr, '')
         if not isdir(curFolder):
+            # Create the first folder from scratch
+            curFolder = curFolder
             makedirs(curFolder)
 
-        curFolder = fullfile(curFolder, self.user)
+        curFolder = fullfile(curFolder, 
+            self.user + '_iter' + str(self.iteration))
+
         if not isdir(curFolder):
             makedirs(curFolder)
         else:
@@ -93,11 +108,13 @@ class tweet_import():
             i = 1
             temp = curFolder
             while isdir(temp):  # Loop until the directory no longer exists
-                temp = curFolder + '_' + str(i)
+                temp = curFolder.replace(
+                    self.user, 
+                    self.user + '_' + str(i))
                 i += 1
             curFolder = temp
-            outFolder = curFolder + '_iter' + str(self.iteration)
-            makedirs(outFolder)
+            curFolder = curFolder   # + '_iter' + str(self.iteration)
+            makedirs(curFolder)
 
         if not isdir(fullfile(curFolder, 'images')):
             # Make a unique directory to save images as well
@@ -160,6 +177,8 @@ class tweet_import():
             except (NameError, KeyError):
                 pass
         self.max_id = min([tweet.id for tweet in new_tweets])-1
+        self.iteration += 1
+        # self.date = max([tweet.date for tweet in new_tweets])-1
         self.writeTweetData(tweetsText, urlData)
 
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
@@ -318,10 +337,16 @@ if __name__ == '__main__':
         username = 'brabbott42'
     elif len(sys.argv) == 2:
         username = sys.argv[1]
+        pages = 1
+    elif len(sys.argv) == 3:
+        username = sys.argv[1]
+        pages = int(sys.argv[2])
     else:
         raise Exception('Invalid number of inputs')
     tweetClass = tweet_import()
     # a.analyzeUsername('brabbott42', range(0, 1000, 200))
-    tweetClass.analyzeUsername(username)
-    tweetClass.classify_images()
-    word_cloud_from_txt(tweetClass.write_summaryfile())
+    for i in range(pages):
+        tweetClass.analyzeUsername(username)
+        # This updates the page number incrementally
+        tweetClass.classify_images()
+        word_cloud_from_txt(tweetClass.write_summaryfile())

@@ -12,3 +12,8 @@ temp*
 !output/examples
 !output/examples/*
 secrets/*
+build/*
+lib*
+*cache*
+*.egg*
+dist/*
