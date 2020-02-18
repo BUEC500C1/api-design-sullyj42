@@ -15,7 +15,7 @@ from datetime import datetime
 import sys
 
 # Create and manipulate files
-from os.path import isfile, sep, isdir, dirname, join as fullfile
+from os.path import isfile, sep, isdir, join as fullfile
 from os import makedirs, environ
 from requests import get as pywget
 
@@ -25,6 +25,9 @@ from twittertools.classify_image import python_image
 # Generate a word cloud
 from twittertools.make_word_cloud import word_cloud_from_txt
 
+# Create simple pathnames to the data directories
+# from pkgutil import get_data as packagedir
+from pathlib import Path
 
 class tweet_import():
     '''
@@ -307,10 +310,17 @@ def image_downloader(url, directory):
 def remove_words(dirty_tweets):
     '''
     This is a computationally complex way to remove a set of words from string
+
+    Check to make sure dirty_tweets is a list of strings
     '''
     clean_tweets = []
-
-    with open(fullfile(sys.prefix, 'textfiles', 'commonwords.txt'), 'r') as wordlist:
+    filepath = Path(__file__)
+    filename = fullfile(filepath.parent, 'textfiles', 'commonwords.txt')
+    if not isfile(filename):
+        print(f'Could not find file {filename}', file=sys.stderr)
+        raise Exception
+    print(f'filename: {filename}')
+    with open(filename, 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]
     for text in dirty_tweets:

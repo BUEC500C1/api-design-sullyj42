@@ -5,13 +5,14 @@ Contains a class to pass an image file (stored locally) to Google Vision API
 import io
 import os
 from os.path import join as fullfile, exists as isfile, sep as filesep
-from sys import argv, stderr, prefix as sysprefix
+from sys import argv, stderr
 # import json
 # Imports the Google Cloud client library
 from google.cloud import vision
 from google.cloud.vision import types
 from re import sub as regexprep
-
+# from pkgutil import get_data as packagedir
+from pathlib import Path
 
 class python_image():
     '''
@@ -80,8 +81,13 @@ def clean_labels(dirty_labels):
     -- Adapted from a function which operated on tweets (paragraphs)
     '''
     clean_labels = []
+    filepath = Path(__file__)
+    filename = fullfile(filepath.parent, 'textfiles', 'commonwords.txt')
 
-    with open(fullfile(sysprefix, 'textfiles', 'commonwords.txt'), 'r') as wordlist:
+    if not isfile(filename):
+        print(f'Could not find file {filename}', file=stderr)
+        raise Exception
+    with open(filename, 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]
     for label in dirty_labels:

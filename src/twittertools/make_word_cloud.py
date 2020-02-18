@@ -37,6 +37,7 @@ class word_cloud_from_txt():
         plt.savefig(out_file)
         self.out_file = out_file
 
+
 if __name__ == '__main__':
     '''
     Provide command-line interface for ease of use
