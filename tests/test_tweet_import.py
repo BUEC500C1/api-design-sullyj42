@@ -6,7 +6,7 @@ Run test case on tweet_image
 from twittertools.tweet_import import tweet_import
 from os.path import isfile, join
 from twittertools.make_word_cloud import word_cloud_from_txt
-
+from glob import glob  # For file matching with wildcard
 
 def test_tweet_import_connection():
     '''
@@ -32,9 +32,12 @@ def test_tweet_total():
     tweetClass.analyzeUsername(username)
     tweetClass.classify_images()
     word_cloud_from_txt(tweetClass.write_summaryfile())
-    assert isfile(join(tweetClass.curFolder, 'twitter_output.png')),\
-        'The wordcloud image was not created'
+    imagelist = glob(join(tweetClass.curFolder, 'twitter_*.png'))
+    imagetest = len(imagelist) == 1
+    assert imagetest, 'A single output wordcloud was not detected'
 
 
 if __name__ == '__main__':
     test_tweet_import_connection()
+    test_tweet_total()
+    print('Passed')

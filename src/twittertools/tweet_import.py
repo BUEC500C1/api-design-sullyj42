@@ -79,10 +79,10 @@ class tweet_import():
         '''
         if self.iteration > 0:
             self.curFolder = re.sub(
-                'iter\\d+', 
+                'iter\\d+',
                 'iter' + str(self.iteration),
                 self.curFolder)
-            makedirs(self.curFolder);
+            makedirs(self.curFolder)
             if not isdir(fullfile(self.curFolder, 'images')):
                 # Make a unique directory to save images as well
                 makedirs(fullfile(self.curFolder, 'images'))
@@ -98,8 +98,8 @@ class tweet_import():
             curFolder = curFolder
             makedirs(curFolder)
 
-        curFolder = fullfile(curFolder, 
-            self.user + '_iter' + str(self.iteration))
+        curFolder = fullfile(curFolder,
+                             self.user + '_iter' + str(self.iteration))
 
         if not isdir(curFolder):
             makedirs(curFolder)
@@ -109,7 +109,7 @@ class tweet_import():
             temp = curFolder
             while isdir(temp):  # Loop until the directory no longer exists
                 temp = curFolder.replace(
-                    self.user, 
+                    self.user,
                     self.user + '_' + str(i))
                 i += 1
             curFolder = temp
@@ -178,7 +178,9 @@ class tweet_import():
                 pass
         self.max_id = min([tweet.id for tweet in new_tweets])-1
         self.iteration += 1
-        # self.date = max([tweet.date for tweet in new_tweets])-1
+        dates = [tw.created_at for tw in new_tweets]
+        self.daterange = max(dates).strftime('%Y%m%d') + '_' + \
+            min(dates).strftime('%Y%m%d')
         self.writeTweetData(tweetsText, urlData)
 
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
@@ -242,7 +244,9 @@ class tweet_import():
         '''
         Write a summary file from the list of tweets and image labels
         '''
-        outfile = fullfile(self.curFolder, 'twitter_output.txt')
+        outfile = fullfile(self.curFolder,
+                           'twitter_' + self.user + '_' +
+                           self.daterange + '.txt')
         print(f'\nWriting output file: {outfile}\n')
         with open(outfile, 'w') as summary_file:
             print(*self.tweet_text, sep='\n\n', file=summary_file)
