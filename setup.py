@@ -26,4 +26,6 @@ setuptools.setup(
     python_requires='>=3.5',
     package_data={'textfiles': ['*.txt']},
    # data_files=[('textfiles', ['textfiles/commonwords.txt', 'textfiles/commonwords2.txt'])]
+    include_package_data=True
+
 )
