@@ -51,5 +51,5 @@ jobs:
         chmod +x ./decrypt_secret.sh
         ./decrypt_secret.sh
         pip install pytest
-        pip install .
+        python -m pip install .
         pytest
