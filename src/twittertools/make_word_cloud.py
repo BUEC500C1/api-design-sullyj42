@@ -35,7 +35,7 @@ class word_cloud_from_txt():
         print(f'Saving word cloud to: {out_file}')
 
         plt.savefig(out_file)
-
+        self.out_file = out_file
 
 if __name__ == '__main__':
     '''
