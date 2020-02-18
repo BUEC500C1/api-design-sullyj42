@@ -81,7 +81,7 @@ def clean_labels(dirty_labels):
     '''
     clean_labels = []
 
-    with open('commonwords.txt', 'r') as wordlist:
+    with open('/media/sf_JP-Macbook/Documents/ec500/video-sullyj42/apiDesignSullyj42/commonwords.txt', 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]
     for label in dirty_labels:

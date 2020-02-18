@@ -24,4 +24,6 @@ setuptools.setup(
     # pip 9.0+ will inspect this field when installing to help users install a
     # compatible version of the library for their Python version.
     python_requires='>=3.5',
+    package_data={'textfiles': ['*.txt']},
+    data_files=[('textfiles', ['textfiles/commonwords.txt', 'textfiles/commonwords2.txt'])]
 )

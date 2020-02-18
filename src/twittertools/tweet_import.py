@@ -15,7 +15,7 @@ from datetime import datetime
 import sys
 
 # Create and manipulate files
-from os.path import isfile, sep, isdir, join as fullfile
+from os.path import isfile, sep, isdir, dirname, join as fullfile
 from os import makedirs, environ
 from requests import get as pywget
 
@@ -310,7 +310,7 @@ def remove_words(dirty_tweets):
     '''
     clean_tweets = []
 
-    with open('commonwords.txt', 'r') as wordlist:
+    with open('/media/sf_JP-Macbook/Documents/ec500/video-sullyj42/apiDesignSullyj42/commonwords.txt', 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]
     for text in dirty_tweets:
