@@ -5,7 +5,7 @@ Contains a class to pass an image file (stored locally) to Google Vision API
 import io
 import os
 from os.path import join as fullfile, exists as isfile, sep as filesep
-from sys import argv, stderr
+from sys import argv, stderr, prefix as sysprefix
 # import json
 # Imports the Google Cloud client library
 from google.cloud import vision
@@ -81,7 +81,7 @@ def clean_labels(dirty_labels):
     '''
     clean_labels = []
 
-    with open('/media/sf_JP-Macbook/Documents/ec500/video-sullyj42/apiDesignSullyj42/commonwords.txt', 'r') as wordlist:
+    with open(fullfile(sysprefix, 'textfiles', 'commonwords.txt'), 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]
     for label in dirty_labels:
