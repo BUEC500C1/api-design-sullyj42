@@ -29,5 +29,9 @@ Downloads images and makes calls to python_image to create a text description of
 -- -- locally accessed as a file in the "tokens" directory
 -- -- remotely accessed as an environmental variable (Github Secrets)
 
-## Bugs
-Currently the valid-image checker is flagging filenames that look invalid, but are in-fact valid images.
+## Tokens 
+Currently, tokens are accessed from the local run directory. The end-user should create four files for the twitter tokens. Name them appropriately as called by the code. And paste the appropriate keys in. 
+
+The Google JSON key should also be pasted in this directory.
+
+The tokens should be automatically ignored by Git, but this is always worth checking.
