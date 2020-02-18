@@ -122,7 +122,7 @@ class tweet_import():
 
         self.curFolder = curFolder
 
-    def analyzeUsername(self, username):
+    def analyzeUsername(self, username, tweetcount=200):
         '''
         Given a valid username, makes call to tweepy to donwload recent tweets
 
@@ -149,7 +149,7 @@ class tweet_import():
         self.makeoutputfolder()
         # Obtain a 'ResultSet' of new tweets
         new_tweets = self.client.user_timeline(screen_name=self.user,
-                                               count=200,
+                                               count=tweetcount,
                                                tweet_mode="extended",
                                                max_id=self.max_id)
 
