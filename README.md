@@ -3,15 +3,9 @@ This repository contains a series of structures to help analyze a users twitter 
 
 Example outputs can be viewed under "outputs/examples"
 
-See pytest files for example usage. Basic usage can be tried with the command: 
-> ./runcommand.sh
+There are a number of files saved to the output directory which an end-user may not care about. However, these outputs are very useful for debugging. A future release should restrict or clean up these files
 
-This command should download the necessary requirements and attempt to run the function for three interesting twitter users. The output will be found by scrolling around in the "output" directory. 
-
-There are a number of files saved to the output directory which an end-user may not care about. However, these outputs are very useful for debugging and may be useful for future expansion into >200 tweet analysis.
-
-There are three Python Files in this repository. Code is documented throughout. 
-
+There are three files in the twittertools package
 ## worcloud
 Given a text file, produces a wordcloud summary (png image). 
 
@@ -35,8 +29,9 @@ Downloads images and makes calls to python_image to create a text description of
 -- -- locally accessed as a file in the "tokens" directory
 -- -- remotely accessed as an environmental variable (Github Secrets)
 
-## TO-DO
-Improve the retrieval of past tweets; currently only analyzing the 200 (ish) most recent tweets
+## Tokens 
+Currently, tokens are accessed from the local run directory. The end-user should create four files for the twitter tokens. Name them appropriately as called by the code. And paste the appropriate keys in. 
 
-## Bugs
-Currently the valid-image checker is flagging filenames that look invalid, but are in-fact valid images.
+The Google JSON key should also be pasted in this directory.
+
+The tokens should be automatically ignored by Git, but this is always worth checking.
