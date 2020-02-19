@@ -29,6 +29,7 @@ from twittertools.make_word_cloud import word_cloud_from_txt
 # from pkgutil import get_data as packagedir
 from pathlib import Path
 
+
 class tweet_import():
     '''
     This class provides a set of methods to analyze Twitter data
@@ -184,8 +185,8 @@ class tweet_import():
         dates = [tw.created_at for tw in new_tweets]
         self.daterange = max(dates).strftime('%Y%m%d') + '_' + \
             min(dates).strftime('%Y%m%d')
-        self.writeTweetData(tweetsText, urlData)
-
+        imageFiles, cleanTweetFile = self.writeTweetData(tweetsText, urlData)
+        return imageFiles, cleanTweetFile
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
 
     def writeTweetData(self, textData, urlData):
@@ -226,24 +227,46 @@ class tweet_import():
                               'but did not download', file=sys.stderr)
         self.images = image_list
 
-    def classify_images(self):
+        return image_list, clean_tweet_file
+
+    def classify_images(self, images=[]):
         '''
         This function passes the images into Google Vision
 
         Leverages the existing lists in the class
+
+        images parameter added to use this module independently, multithreaded
+
+        If there are no images, return an empty list
+
+        If there are images, return a list containing the labels for each image
         '''
         print('Classifying images, this takes some time...\n')
         g_vision = python_image()
         self.image_labels = []
-        for image_file in self.images:
-            print(f'\nClassifying: {image_file}')
+        if not images:  # If the argument is empty
+            image_files = self.images
+        else:
+            image_files = images
+
+        if not image_files:  # If this is empty, return an empty list
+            return []
+        # print(*image_files, sep='\n')
+        # print(images)
+        # sleep(5)
+
+        if any([not isfile(images) for images in image_files]):
+            raise FileNotFoundError
+        for image_file in image_files:
+            # print(f'\nClassifying: {image_file}')
             g_vision.process_file(image_file)
-            print('Classified, obtained labels: ')
-            print(*g_vision.labels, sep=' ')
+            # print('Classified, obtained labels: ')
+            # print(*g_vision.labels, sep=' ')
             self.image_labels += g_vision.labels    # Append list into our list
             # Metadata from labels
+        return self.image_labels
 
-    def write_summaryfile(self):
+    def write_summaryfile(self, image_labels=[]):
         '''
         Write a summary file from the list of tweets and image labels
         '''
@@ -251,13 +274,17 @@ class tweet_import():
                            'twitter_' + self.user + '_' +
                            self.daterange + '.txt')
         print(f'\nWriting output file: {outfile}\n')
+
+        if image_labels == []:
+            image_labels = self.image_labels
         with open(outfile, 'w') as summary_file:
             print(*self.tweet_text, sep='\n\n', file=summary_file)
             print('\n\n', file=summary_file)
-            for i in range(3):
-                # Make the image files more significant, arbitrarily
-                print(*self.image_labels, sep='\n', file=summary_file)
-                print('')
+            if image_labels:  # Test if list is not empty
+                for i in range(3):
+                    # Make the image files more significant, arbitrarily
+                    print(*image_labels, sep='\n', file=summary_file)
+                    print('')
         print('Output file complete.')
         return outfile
 
@@ -319,7 +346,6 @@ def remove_words(dirty_tweets):
     if not isfile(filename):
         print(f'Could not find file {filename}', file=sys.stderr)
         raise Exception
-    print(f'filename: {filename}')
     with open(filename, 'r') as wordlist:
         words_to_remove = wordlist.readlines()
     words_to_remove = [word.lower().strip() for word in words_to_remove]

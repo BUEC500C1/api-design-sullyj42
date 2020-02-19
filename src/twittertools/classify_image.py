@@ -14,6 +14,7 @@ from re import sub as regexprep
 # from pkgutil import get_data as packagedir
 from pathlib import Path
 
+
 class python_image():
     '''
     This class is meant to handle all the calls to the Google Vision API
