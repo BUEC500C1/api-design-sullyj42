@@ -167,6 +167,10 @@ class tweet_import():
                                                count=tweetcount,
                                                tweet_mode="extended",
                                                max_id=self.max_id)
+        if len(new_tweets) == 0:
+            print('No tweets returned, perhaps you reached the end?',
+                  file=sys.stderr)
+            return
         # Parse text
         tweetsText = []
         for tweet in new_tweets:
