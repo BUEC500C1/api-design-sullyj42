@@ -71,6 +71,8 @@ class tweet_import():
         self.client_id = self.client.me().id
         self.max_id = None  # For aquiring past tweets
         self.iteration = 0  # For saving iterative tweets in new pages
+        self.tweet_count = 0  # This API is limited to 3200 tweets
+        # Throw a specific error when this is reached
 
     def makeoutputfolder(self):
         '''
@@ -126,7 +128,7 @@ class tweet_import():
 
         self.curFolder = curFolder
 
-    def analyzeUsername(self, username, tweetcount=200):
+    def analyzeUsername(self, username, tweetcount=200, noverlap=0):
         '''
         Given a valid username, makes call to tweepy to donwload recent tweets
 
@@ -148,15 +150,23 @@ class tweet_import():
             -- Useful for debugging
 
             3. The images from the list above, saved to "images" subdirectory
+
+            noverlap should be made more robust to reduce recalculations
         '''
+        if noverlap < 0 or noverlap >= tweetcount:
+            raise ValueError()
+
+        if self.tweet_count >= 3199:  # Eer on the side of caution
+            print(f'Cannot obtain more tweets (API limits)', file=sys.stderr)
+            return
         self.user = username
         self.makeoutputfolder()
         # Obtain a 'ResultSet' of new tweets
+
         new_tweets = self.client.user_timeline(screen_name=self.user,
                                                count=tweetcount,
                                                tweet_mode="extended",
                                                max_id=self.max_id)
-
         # Parse text
         tweetsText = []
         for tweet in new_tweets:
@@ -180,7 +190,12 @@ class tweet_import():
                 urlData.append(tweet.entities['media'][0]['media_url'])
             except (NameError, KeyError):
                 pass
-        self.max_id = min([tweet.id for tweet in new_tweets])-1
+        max_ids = ([tweet.id for tweet in new_tweets])
+        max_ids.sort()
+        self.max_id = max_ids[noverlap] - 1
+        self.tweet_count += len(new_tweets) - noverlap
+        # We want to know if the next requests will reach over the maxima
+
         self.iteration += 1
         dates = [tw.created_at for tw in new_tweets]
         self.daterange = max(dates).strftime('%Y%m%d') + '_' + \
@@ -277,11 +292,12 @@ class tweet_import():
 
         if image_labels == []:
             image_labels = self.image_labels
+
         with open(outfile, 'w') as summary_file:
             print(*self.tweet_text, sep='\n\n', file=summary_file)
             print('\n\n', file=summary_file)
             if image_labels:  # Test if list is not empty
-                for i in range(3):
+                for i in range(1):
                     # Make the image files more significant, arbitrarily
                     print(*image_labels, sep='\n', file=summary_file)
                     print('')
