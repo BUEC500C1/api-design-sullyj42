@@ -29,6 +29,19 @@ class python_image():
 
         If initiated with a valid file name, it will process that file
         '''
+        google_env = "GOOGLE_APPLICATION_CREDENTIALS"
+        filepath = Path(__file__)
+        filename = fullfile(filepath.parent)
+        if os.environ.get(google_env) is None:
+            envfile = fullfile(filepath, 'tokens',
+                               'my-google-api-credentials.json')
+            if not isfile(envfile):
+                print('API credentials not placed in proper directory',
+                      file=stderr)
+                raise FileNotFoundError()
+            else:
+                os.environ[google_env]=envfile
+
         self.client = vision.ImageAnnotatorClient()
         if isfile(file_name):
             self.process_file(file_name)

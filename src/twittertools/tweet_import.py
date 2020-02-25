@@ -28,13 +28,14 @@ from twittertools.make_word_cloud import word_cloud_from_txt
 # Create simple pathnames to the data directories
 # from pkgutil import get_data as packagedir
 from pathlib import Path
+import configparser
 
 
 class tweet_import():
     '''
     This class provides a set of methods to analyze Twitter data
     '''
-    def __init__(self):
+    def __init__(self, keyspath=''):
         '''
         This attempts to initialize a twitter API interface
 
@@ -42,31 +43,72 @@ class tweet_import():
         Throws error if connection unsuccessful
         '''
         try:
-            # Try using local files
-            consumer_key = getKeyFromTxt('./tokens/twitter_consumer.token')
-            consumer_secret = getKeyFromTxt(
-                './tokens/twitter_consumer_secret.token')
-            access_token = getKeyFromTxt('./tokens/twitter_access.token')
-            access_secret = getKeyFromTxt(
-                './tokens/twitter_access_secret.token')
-        except FileNotFoundError:
-            # Use environmental variables (Github Actions)
-            consumer_key = environ['CONSUMER_KEY']
-            consumer_secret = environ['CONSUMER_SECRET']
-            access_token = environ['ACCESS_TOKEN']
-            access_secret = environ['ACCESS_SECRET']
-        try:
+            # Try using local files -- My original method
+            filepath = Path(__file__)
+            tokenspath = fullfile(filepath.parent, 'tokens')
+            print(f'\nFile TOKEN path: {tokenspath}\n', file=sys.stderr)
+            consumerfile = fullfile(tokenspath, 'twitter_consumer.token')
+            consumer_key = getKeyFromTxt(consumerfile)
+            fullfile(tokenspath, 'twitter_consumer_secret.token')
+            consecfile = fullfile(tokenspath, 'twitter_consumer_secret.token')
+            consumer_secret = getKeyFromTxt(consecfile)
+            access_file = fullfile(tokenspath, 'twitter_access.token')
+            access_token = getKeyFromTxt(access_file)
+            acsecfile = fullfile(tokenspath, 'twitter_access_secret.token')
+            access_secret = getKeyFromTxt(acsecfile)
             auth = tweepy.OAuthHandler(consumer_key,
                                        consumer_secret)
             auth.set_access_token(access_token, access_secret)
 
-            self.client = tweepy.API(auth)
-            if not self.client.verify_credentials():
-                raise tweepy.TweepError
-        except tweepy.TweepError as e:
+        except FileNotFoundError:
+            print('\nCould not find .token files, trying to find "key" file\n',
+                  file=sys.stderr)
+            # Stephan's block
+            try:
+                filepath = Path(__file__)
+                tokenspath = fullfile(filepath.parent, 'tokens')
+                print(f'File KEY path: {tokenspath}', file=sys.stderr)
+                config = configparser.ConfigParser()
+                keyfile = fullfile(tokenspath, 'keys')
+                if not isfile(keyfile):
+                    print(f'File "key" not found: {keyfile}', file=sys.stderr)
+                    raise FileNotFoundError()
+                config.read(keyfile)
+                conskey = config.get('auth', 'consumer_key')  #.strip()
+                consecret = config.get('auth', 'consumer_secret')  #.strip()
+                accesstok = config.get('auth', 'access_token')  #.strip()
+                accesssec = config.get('auth', 'access_secret')  #.strip()
+                # print(f'Consumer key: "{conskey}"')
+                # print(f'Consumer sec: "{consecret}"')
+                # print(f'access key: "{accesstok}"')
+                # print(f'access sec: "{accesssec}"')
+                auth = tweepy.OAuthHandler(conskey, consecret)
+                auth.set_access_token(accesstok, accesssec)
+            except FileNotFoundError:
+                try:
+                    print('\nCould not find .token or "key" file' +
+                          'Checking environmental variables (Github actions\n',
+                          file=sys.stderr)
+                    # Use environmental variables (Github Actions)
+                    consumer_key = environ['CONSUMER_KEY']
+                    consumer_secret = environ['CONSUMER_SECRET']
+                    access_token = environ['ACCESS_TOKEN']
+                    access_secret = environ['ACCESS_SECRET']
+                    auth = tweepy.OAuthHandler(consumer_key,
+                                               consumer_secret)
+                    auth.set_access_token(access_token, access_secret)
+                except:
+                    print('Tried three methods and could not find key files.',
+                          file=sys.stderr)
+                    raise
+        print('\nGenerated auth. Attempting to connect\n', file=sys.stderr)
+        self.client = tweepy.API(auth)
+        if not self.client.verify_credentials():
+            # except tweepy.TweepError as e:
             # Print a more helpful debug message and rethrow
             print('\nERROR : connection failed. Check your Twitter keys.\n')
-            raise e
+            raise tweepy.TweepError
+
         print(f'Connected as {self.client.me().screen_name}, you can tweet !')
         self.client_id = self.client.me().id
         self.max_id = None  # For aquiring past tweets
@@ -314,12 +356,14 @@ def getKeyFromTxt(fName):
     This function reads Twitter tokens saved as simple text files
     '''
     if isfile(fName):
+        print(f'\nReading token from: {fName}\n', file=sys.stderr)
         fid = open(fName, 'r')
         key = fid.readline()
         fid.close()
         return(key)
     else:
-        print('\nKey missing. Expected if running remote\n', file=sys.stderr)
+        print(f'\nKey not found in file: {fName}\ngetKeyFromTxt failure\n',
+              file=sys.stderr)
         raise FileNotFoundError
 
 
