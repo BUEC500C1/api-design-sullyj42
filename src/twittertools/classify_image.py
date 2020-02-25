@@ -31,7 +31,6 @@ class python_image():
         '''
         google_env = "GOOGLE_APPLICATION_CREDENTIALS"
         filepath = Path(__file__)
-        filename = fullfile(filepath.parent)
         if os.environ.get(google_env) is None:
             envfile = fullfile(filepath, 'tokens',
                                'my-google-api-credentials.json')
@@ -40,7 +39,7 @@ class python_image():
                       file=stderr)
                 raise FileNotFoundError()
             else:
-                os.environ[google_env]=envfile
+                os.environ[google_env] = envfile
 
         self.client = vision.ImageAnnotatorClient()
         if isfile(file_name):
