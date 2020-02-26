@@ -170,7 +170,9 @@ class tweet_import():
 
         self.curFolder = curFolder
 
-    def analyzeUsername(self, username, tweetcount=200, noverlap=0):
+    def analyzeUsername(self,           username, 
+                        tweetcount=200, noverlap=0, 
+                        work_images=True):
         '''
         Given a valid username, makes call to tweepy to donwload recent tweets
 
@@ -248,11 +250,16 @@ class tweet_import():
             min(dates).strftime('%Y%m%d')
         self.tweetsText = tweetsText  # Save for offline testing
         self.urlData = urlData  # Save for offline testing
-        imageFiles, cleanTweetFile = self.writeTweetData(tweetsText, urlData)
+        cleanTweetFile = self.writeTweetData(tweetsText)
+        if work_images:
+            imageFiles = self.work_picture_data(urlData)
+        else:
+            imageFiles = []
+            self.images = []
         return imageFiles, cleanTweetFile
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
 
-    def writeTweetData(self, textData, urlData):
+    def writeTweetData(self, textData):
         '''
         This method saves the tweet data, and image url's to an output folder
 
@@ -271,7 +278,14 @@ class tweet_import():
         with open(clean_tweet_file, 'w') as clean_fid:
             print(*clean_tweets, sep='\n\n', file=clean_fid)
         self.tweet_text = clean_tweets
+        return clean_tweet_file
 
+    def work_picture_data(self, urlData):
+        '''
+        Google Vision API reqiures local files to be worked
+
+        Download files and return a list of these filepaths
+        '''
         urlFile = self.curFolder + sep + 'imageData_' + self.user + '.txt'
         outfolder = fullfile(self.curFolder, 'images', '')
         with open(urlFile, 'w') as f_url:
@@ -289,8 +303,7 @@ class tweet_import():
                         print(f'Imagedownloader returned ({fname})\n' +
                               'but did not download', file=sys.stderr)
         self.images = image_list
-
-        return image_list, clean_tweet_file
+        return image_list
 
     def classify_images(self, images=[]):
         '''
