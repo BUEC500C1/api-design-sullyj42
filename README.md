@@ -30,8 +30,11 @@ Downloads images and makes calls to python_image to create a text description of
 -- -- remotely accessed as an environmental variable (Github Secrets)
 
 ## Tokens 
-Currently, tokens are accessed from the local run directory. The end-user should create four files for the twitter tokens. Name them appropriately as called by the code. And paste the appropriate keys in. 
+All tokens should be placed in the src/twittertools/tokens directory.
 
-The Google JSON key should also be pasted in this directory.
+Twitter tokens can either be placed in separate files names twitter_consumer_key.token, ..., placed in a single "keys" file (specification from config py), or set up as environmental variable. The program will automatically try to to detect keys in the format above. If keys are not detected, the program will fail.
 
-The tokens should be automatically ignored by Git, but this is always worth checking.
+## Testing
+End-end testing is established by Github Secrets. 
+
+Unit testing is established wherever possible. Including using intermediate "stubs" of python objects from Pickle. 
