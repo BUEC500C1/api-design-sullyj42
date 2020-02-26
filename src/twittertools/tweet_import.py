@@ -246,6 +246,8 @@ class tweet_import():
         dates = [tw.created_at for tw in new_tweets]
         self.daterange = max(dates).strftime('%Y%m%d') + '_' + \
             min(dates).strftime('%Y%m%d')
+        self.tweetsText = tweetsText  # Save for offline testing
+        self.urlData = urlData  # Save for offline testing
         imageFiles, cleanTweetFile = self.writeTweetData(tweetsText, urlData)
         return imageFiles, cleanTweetFile
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
@@ -303,8 +305,13 @@ class tweet_import():
         If there are images, return a list containing the labels for each image
         '''
         print('Classifying images, this takes some time...\n')
-        g_vision = python_image()
+        
         self.image_labels = []
+        try:
+            g_vision = python_image()  # Try to connect to google vision
+        except:  # Add options
+            return self.image_labels
+            
         if not images:  # If the argument is empty
             image_files = self.images
         else:
