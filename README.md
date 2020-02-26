@@ -1,4 +1,11 @@
 # api-design-sullyj42
+
+## Tokens 
+All tokens should be placed in the src/twittertools/tokens directory.
+
+Twitter tokens can either be placed in separate files names twitter_consumer_key.token, ..., placed in a single "keys" file (specification from config py), or set up as environmental variable. The program will automatically try to to detect keys in the format above. If keys are not detected, the program will fail.
+
+## Usage
 This repository contains a series of structures to help analyze a users twitter feed. The end-goal was to create a word-cloud summarizing a users Twitter history. Run on XUbuntu with an Anaconda Python 3.8.1 environment (requirements generated using pip freeze)
 
 Example outputs can be viewed under "outputs/examples"
@@ -29,9 +36,7 @@ Downloads images and makes calls to python_image to create a text description of
 -- -- locally accessed as a file in the "tokens" directory
 -- -- remotely accessed as an environmental variable (Github Secrets)
 
-## Tokens 
-Currently, tokens are accessed from the local run directory. The end-user should create four files for the twitter tokens. Name them appropriately as called by the code. And paste the appropriate keys in. 
+## Testing
+End-end testing is established by Github Secrets. 
 
-The Google JSON key should also be pasted in this directory.
-
-The tokens should be automatically ignored by Git, but this is always worth checking.
+Unit testing is established wherever possible. Including using intermediate "stubs" of python objects from Pickle. 
