@@ -30,10 +30,9 @@ def test_tweet_partial():
 
 
     # Run offline tests
-    fname = Path(__file__)
-    fdir = fname.parent
-    fname = join(fdir, '../twitter_test/brabbott42_200tweets.p')
-    outdir = join(fdir, 'output')
+    homedir = Path(join(Path(__file__).parent, '..')).resolve(strict=True)
+    fname = join(homedir, 'twitter_test', 'brabbott42_200tweets.p')
+    outdir = join(homedir, 'output')
     if not isfile(fname):
         print(f'Could not find file: {fname}')
         assert False, 'Expected a twitter object to be saved for testing'

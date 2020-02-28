@@ -7,17 +7,19 @@ import os
 # import pytest
 from twittertools.classify_image import python_image
 from os.path import join as fullfile
-
+from pathlib import Path
 
 def test_classify_image():
     '''
     This function runs two simple tests over a Google Cloud Image wrapper
     '''
-    image_file = fullfile('vision_test', 'samples', 'mountains.jpg')
+    fname = Path(__file__)
+    homedir = Path(fullfile(fname.parent, '..')).resolve(strict=True)
+    image_file = fullfile(homedir, 'vision_test', 'samples', 'mountains.jpg')
     if not os.path.isfile(image_file):
         raise Exception('Test image file not found')
 
-    report_file = 'vision_test/samples/mountains_results.json'
+    report_file = fullfile(homedir, 'vision_test', 'samples', 'mountains_results.json')
     if os.path.isfile(report_file):
         os.remove(report_file)
     image_classifier = python_image(image_file)
