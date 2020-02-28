@@ -251,11 +251,15 @@ class tweet_import():
         self.tweetsText = tweetsText  # Save for offline testing
         self.urlData = urlData  # Save for offline testing
         cleanTweetFile = self.writeTweetData(tweetsText)
+        # print(f'work images: {work_images}')
+        self.work_images = work_images
         if work_images:
+            print('Working image data from analyzeUsername')
             imageFiles = self.work_picture_data(urlData)
         else:
             imageFiles = []
             self.images = []
+            self.image_labels = []
         return imageFiles, cleanTweetFile
         # self.tweet_text = tweetsText # WRITE THIS AFTER CLEANING
 
@@ -286,6 +290,7 @@ class tweet_import():
 
         Download files and return a list of these filepaths
         '''
+        # print('working image data')
         urlFile = self.curFolder + sep + 'imageData_' + self.user + '.txt'
         outfolder = fullfile(self.curFolder, 'images', '')
         with open(urlFile, 'w') as f_url:
