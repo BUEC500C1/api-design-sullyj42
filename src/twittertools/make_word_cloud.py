@@ -31,7 +31,7 @@ class word_cloud_from_txt():
         plt.figure()
         plt.imshow(wordcloud, interpolation="bilinear")
         plt.axis("off")
-        out_file = regexprep('\\.\\w+', '.png', file_name)
+        out_file = regexprep('\\.png', '.png', file_name)  # FILETYPE RESTRICTION
         print(f'Saving word cloud to: {out_file}')
 
         plt.savefig(out_file)
