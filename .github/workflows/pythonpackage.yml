@@ -52,5 +52,5 @@ jobs:
         ./decrypt_secret.sh
         pip install pytest
         python -m pip install .
-        ls /opt/hostedtoolcache/Python/3.8.1/x64/
+        # ls /opt/hostedtoolcache/Python/3.8.1/x64/
         pytest
